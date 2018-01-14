@@ -4,6 +4,11 @@
 ## Author: Rainrider
 ## Version: @project-Version@
 ## RequiredDeps: oUF
-## OptionalDeps: LibPlayerSpells-1.0
+## OptionalDeps: LibStub, LibPlayerSpells-1.0
+
+@no-lib-strip@
+libs\LibStub\LibStub.lua
+libs\LibPlayerSpells-1.0\lib.xml
+@end-no-lib-strip@
 
 oUF_Dispelable.lua
