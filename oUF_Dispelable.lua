@@ -88,11 +88,6 @@ local function UpdateTooltip(dispelIcon)
 	GameTooltip:SetUnitAura(dispelIcon.unit, dispelIcon.id, 'HARMFUL')
 end
 
---[[ Override: Dispelable.dispelIcon:OnEnter()
-Called when the mouse enters the widget.
-
-* self - the dispelIcon sub-widget
---]]
 local function OnEnter(dispelIcon)
 	if (not dispelIcon:IsVisible()) then return end
 
@@ -100,11 +95,6 @@ local function OnEnter(dispelIcon)
 	dispelIcon:UpdateTooltip()
 end
 
---[[ Override: Dispelable.dispelIcon:OnLeave()
-Called when the mouse leaves the widget.
-
-* self - the dispelIcon sub-widget
---]]
 local function OnLeave(dispelIcon)
 	GameTooltip:Hide()
 end
@@ -245,10 +235,15 @@ local function Enable(self)
 		end
 
 		if (dispelIcon:IsMouseEnabled()) then
-			dispelIcon:SetScript('OnEnter', dispelIcon.OnEnter or OnEnter)
-			dispelIcon:SetScript('OnLeave', dispelIcon.OnLeave or OnLeave)
 			dispelIcon.tooltipAnchor = dispelIcon.tooltipAnchor or 'ANCHOR_BOTTOMRIGHT'
 			dispelIcon.UpdateTooltip = dispelIcon.UpdateTooltip or UpdateTooltip
+
+			if (not dispelIcon:GetScript('OnEnter')) then
+				dispelIcon:SetScript('OnEnter', OnEnter)
+			end
+			if (not dispelIcon:GetScript('OnLeave')) then
+				dispelIcon:SetScript('OnLeave', OnLeave)
+			end
 		end
 	end
 
