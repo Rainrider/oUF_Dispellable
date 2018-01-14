@@ -2,7 +2,7 @@
 ## Title: oUF_Dispel
 ## Notes: oUF element for highlighting debuffs that are dispelable by the player
 ## Author: Rainrider
-## Version: @project-Version@
+## Version: @project-version@
 ## RequiredDeps: oUF
 ## OptionalDeps: LibStub, LibPlayerSpells-1.0
 
