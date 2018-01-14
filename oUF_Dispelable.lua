@@ -1,3 +1,46 @@
+--[[
+# Element: Dispelable
+
+Highlights debuffs that are dispelable by the player
+
+## Widget
+
+.Dispelable - A `table` to hold the sub-widgets.
+
+## Sub-Widgets
+
+.dispelIcon    - A `Button` to represent the icon of a dispelable debuff.
+.dispelTexture - A `Texture` to be colored according to the debuff type.
+
+## Notes
+
+At least one of the sub-widgets should be present for the element to work.
+If `.dispelIcon` and `.dispelIcon.cd` are defined without a global name, one will be set accordingly by the element to
+prevent /fstack errors.
+The element add `debuffTypes` to oUF's color table, which can be customized by the layout.
+
+## .dispelIcon Sub-Widgets
+
+.cd      - used to display the cooldown spiral for the remaining debuff duration (Cooldown)
+.count   - used to display the stack count of the dispelable debuff (FontString)
+.icon    - used to show the icon's texture (Texture)
+.overlay - used to represent the icon's border. Will be colored according to the debuff type color (Texture)
+
+## .dispelIcon Options
+
+.tooltipAnchor - anchor for the widget's tooltip if it is mouse-enabled. Defaults to 'ANCHOR_BOTTOMRIGHT' (string)
+
+## .dispelIcon Attributes
+
+.id   - the aura index of the dispelable debuff displayed by the widget (number)
+.unit - the unit on which the dispelable dubuff displayed by the widget has been found (string)
+
+## .dispelTexture Options
+
+.dispelAlpha   - alpha value for the widget when a dispelable debuff is found. Defaults to 1 (number)[0-1]
+.noDispelAlpha - alpha value for the widget when no dispelable debuffs are found. Defaults to 0 (number)[0-1]
+--]]
+
 local _, ns = ...
 
 local oUF = ns.oUF or oUF
@@ -36,10 +79,20 @@ if (not next(dispels)) then return end
 
 local canDispel = {}
 
+--[[ Override: Dispelable.dispelIcon:UpdateTooltip()
+Called to update the widget's tooltip.
+
+* self - the dispelIcon sub-widget
+--]]
 local function UpdateTooltip(dispelIcon)
 	GameTooltip:SetUnitAura(dispelIcon.unit, dispelIcon.id, 'HARMFUL')
 end
 
+--[[ Override: Dispelable.dispelIcon:OnEnter()
+Called when the mouse enters the widget.
+
+* self - the dispelIcon sub-widget
+--]]
 local function OnEnter(dispelIcon)
 	if (not dispelIcon:IsVisible()) then return end
 
@@ -47,10 +100,24 @@ local function OnEnter(dispelIcon)
 	dispelIcon:UpdateTooltip()
 end
 
+--[[ Override: Dispelable.dispelIcon:OnLeave()
+Called when the mouse leaves the widget.
+
+* self - the dispelIcon sub-widget
+--]]
 local function OnLeave(dispelIcon)
 	GameTooltip:Hide()
 end
 
+--[[ Override: Dispelable.dispelTexture:UpdateColor(r, g, b, a)
+Called to update the widget's color.
+
+* self - the dispelTexture sub-widget
+* r - the red color component (number)[0-1]
+* g - the green color component (number)[0-1]
+* b - the blue color component (number)[0-1]
+* a - the alpha color component (number)[0-1]
+--]]
 local function UpdateColor(dispelTexture, r, g, b, a)
 	dispelTexture:SetVertexColor(r, g, b, a)
 end
@@ -59,6 +126,16 @@ local function Update(self, event, unit)
 	if (self.unit ~= unit or unit and not UnitCanAssist('player', unit)) then return end
 
 	local element = self.Dispelable
+
+	--[[ Callback: Dispelable:PreUpdate()
+	Called before the element has been updated.
+
+	* self - the Dispelable element
+	--]]
+	if (element.PreUpdate) then
+		element:PreUpdate()
+	end
+
 	local dispelTexture = element.dispelTexture
 	local dispelIcon = element.dispelIcon
 
@@ -111,13 +188,34 @@ local function Update(self, event, unit)
 		end
 	end
 
+	--[[ Callback: Dispelable:PostUpdate(dispelType, texture, count, duration, expiration)
+	Called after the element has been updated.
+
+	* self       - the Dispelable element
+	* dispelType - the type of the dispelable debuff (string?)['Curse', 'Disease', 'Magic', 'Poison']
+	* texture    - the texture representing the debuff icon (number?)
+	* count      - the stack count of the dispelable debuff (number?)
+	* duration   - the duration of the dispelable debuff in seconds (number?)
+	* expiration - the point in time when the debuff will expire. Can be compared to `GetTime()` (number?)
+	--]]
 	if (element.PostUpdate) then
 		element:PostUpdate(dispelType, texture, count, duration, expiration)
 	end
 end
 
+local function Path(self, event, unit)
+	--[[ Override: Dispelable:Override(event, unit)
+	Used to override the internal update function.
+
+	* self  - the Dispelable element
+	* event - the event triggering the update (string)
+	* unit  - the unit accompaning the event (string)
+	--]]
+	return (self.Dispelable.Override or Update)(self, event, unit)
+end
+
 local function ForceUpdate(element)
-	return Update(element.__owner, 'ForceUpdate', element.__owner.unit)
+	return Path(element.__owner, 'ForceUpdate', element.__owner.unit)
 end
 
 local function Enable(self)
@@ -154,7 +252,7 @@ local function Enable(self)
 		end
 	end
 
-	self:RegisterEvent('UNIT_AURA', Update)
+	self:RegisterEvent('UNIT_AURA', Path)
 
 	return true
 end
@@ -170,10 +268,10 @@ local function Disable(self)
 		element.dispelTexture:Hide()
 	end
 
-	self:UnregisterEvent('UNIT_AURA', Update)
+	self:UnregisterEvent('UNIT_AURA', Path)
 end
 
-oUF:AddElement('Dispel', Update, Enable, Disable)
+oUF:AddElement('Dispel', Path, Enable, Disable)
 
 local function ToggleElement(enable, ...)
 	for i = 1, select('#', ...) do
