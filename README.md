@@ -41,3 +41,7 @@ install it as a normal addon. If you prefer the `nolib` version, make sure you a
 
 If you have any problems using oUF_Dispelable, please open an issue at [Github](https://github.com/Rainrider/oUF_Dispelable/issues). 
 Remember to first search if there is an open/closed issue concerning your problem.
+
+## License
+
+Please read the included LICENSE.
