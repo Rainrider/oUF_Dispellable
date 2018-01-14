@@ -6,3 +6,8 @@ externals:
     tag: latest
   libs/LibPlayerSpells-1.0:
     url: https://github.com/AdiAddons/LibPlayerSpells-1.0.git
+
+required-dependencies:
+  - 21187-ouf
+  - 14328-libstub
+  - 72228-libplayerspells-1-0
