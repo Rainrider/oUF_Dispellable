@@ -299,7 +299,7 @@ local function Disable(self)
 		element.dispelIcon:Hide()
 	end
 	if (element.dispelTexture) then
-		element.dispelTexture:Hide()
+		element.dispelTexture:UpdateColor(1, 1, 1, element.dispelTexture.noDispelAlpha)
 	end
 
 	self:UnregisterEvent('UNIT_AURA', Path)
