@@ -1,0 +1,9 @@
+## Interface: 70300
+## Title: oUF_Dispel
+## Notes: oUF element for highlighting debuffs that are dispelable by the player
+## Author: Rainrider
+## Version: @project-Version@
+## RequiredDeps: oUF
+## OptionalDeps: LibPlayerSpells-1.0
+
+oUF_Dispel.lua
