@@ -138,16 +138,17 @@ local function OnLeave(dispelIcon)
 	GameTooltip:Hide()
 end
 
---[[ Override: Dispelable.dispelTexture:UpdateColor(r, g, b, a)
+--[[ Override: Dispelable.dispelTexture:UpdateColor(dispelType, r, g, b, a)
 Called to update the widget's color.
 
-* self - the dispelTexture sub-widget
-* r - the red color component (number)[0-1]
-* g - the green color component (number)[0-1]
-* b - the blue color component (number)[0-1]
-* a - the alpha color component (number)[0-1]
+* self       - the dispelTexture sub-widget
+* dispelType - the type of the dispelable debuff (string?)['Curse', 'Disease', 'Magic', 'Poison']
+* r          - the red color component (number)[0-1]
+* g          - the green color component (number)[0-1]
+* b          - the blue color component (number)[0-1]
+* a          - the alpha color component (number)[0-1]
 --]]
-local function UpdateColor(dispelTexture, r, g, b, a)
+local function UpdateColor(dispelTexture, dispelType, r, g, b, a)
 	dispelTexture:SetVertexColor(r, g, b, a)
 end
 
@@ -182,7 +183,7 @@ local function Update(self, event, unit)
 		local color = self.colors.debuffType[dispelType]
 		local r, g, b = color[1], color[2], color[3]
 		if (dispelTexture) then
-			dispelTexture:UpdateColor(r, g, b, dispelTexture.dispelAlpha)
+			dispelTexture:UpdateColor(dispelType, r, g, b, dispelTexture.dispelAlpha)
 		end
 
 		if (dispelIcon) then
@@ -210,7 +211,7 @@ local function Update(self, event, unit)
 		end
 	else
 		if (dispelTexture) then
-			dispelTexture:UpdateColor(1, 1, 1, dispelTexture.noDispelAlpha)
+			dispelTexture:UpdateColor(dispelType, 1, 1, 1, dispelTexture.noDispelAlpha)
 		end
 		if (dispelIcon) then
 			dispelIcon:Hide()
@@ -299,7 +300,7 @@ local function Disable(self)
 		element.dispelIcon:Hide()
 	end
 	if (element.dispelTexture) then
-		element.dispelTexture:UpdateColor(1, 1, 1, element.dispelTexture.noDispelAlpha)
+		element.dispelTexture:UpdateColor(dispelType, 1, 1, 1, element.dispelTexture.noDispelAlpha)
 	end
 
 	self:UnregisterEvent('UNIT_AURA', Path)
