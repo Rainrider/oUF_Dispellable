@@ -15,9 +15,11 @@ Highlights debuffs that are dispelable by the player
 ## Notes
 
 At least one of the sub-widgets should be present for the element to work.
+If mouse interactivity is enabled for the `.dispelIcon` sub-widget, 'OnEnter' and/or 'OnLeave' handlers will be set to
+display a tooltip.
 If `.dispelIcon` and `.dispelIcon.cd` are defined without a global name, one will be set accordingly by the element to
 prevent /fstack errors.
-The element add `debuffTypes` to oUF's color table, which can be customized by the layout.
+The element adds `debuffTypes` to oUF's colors table, which can be customized by the layout.
 
 ## .dispelIcon Sub-Widgets
 
