@@ -6,4 +6,4 @@
 ## RequiredDeps: oUF
 ## OptionalDeps: LibPlayerSpells-1.0
 
-oUF_Dispel.lua
+oUF_Dispelable.lua

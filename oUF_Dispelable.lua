@@ -41,12 +41,49 @@ The element adds `debuffTypes` to oUF's colors table, which can be customized by
 
 .dispelAlpha   - alpha value for the widget when a dispelable debuff is found. Defaults to 1 (number)[0-1]
 .noDispelAlpha - alpha value for the widget when no dispelable debuffs are found. Defaults to 0 (number)[0-1]
+
+## Examples
+
+    -- Position and size
+    local Dispelable = {}
+    local button = CreateFrame('Button', 'LayoutName_Dispel', self.Health)
+    button:SetPoint('CENTER')
+    button:SetSize(22, 22)
+    button:SetToplevel(true)
+
+    local cd = CreateFrame('Cooldown', '$parentCooldown', button, 'CooldownFrameTemplate')
+    cd:SetAllPoints()
+
+    local icon = button:CreateTexture(nil, 'ARTWORK')
+    icon:SetAllPoints()
+
+    local overlay = button:CreateTexture(nil, 'OVERLAY')
+    overlay:SetTexture('Interface\\Buttons\\UI-Debuff-Overlays')
+    overlay:SetTexCoord(0.296875, 0.5703125, 0, 0.515625)
+    overlay:SetAllPoints()
+
+    local count = button:CreateFontString(nil, 'OVERLAY', 'NumberFontNormal', 1)
+    count:SetPoint('BOTTOMRIGHT', -1, 1)
+
+    local texture = self.Health:CreateTexture(nil, 'OVERLAY')
+    texture:SetTexture('Interface\\ChatFrame\\ChatFrameBackground')
+    texture:SetAllPoints()
+
+    -- Register with oUF
+    button.cd = cd
+    button.icon = icon
+    button.overlay = overlay
+    button.count = count
+
+    Dispelable.dispelIcon = button
+    Dispelable.dispelTexture = texture
+    self.Dispelable = Dispelable
 --]]
 
 local _, ns = ...
 
 local oUF = ns.oUF or oUF
-assert(oUF, 'oUF_Dispel requires oUF.')
+assert(oUF, 'oUF_Dispelable requires oUF.')
 
 oUF.colors.debuffType = {}
 for debuffType, color in next, DebuffTypeColor do
@@ -54,7 +91,7 @@ for debuffType, color in next, DebuffTypeColor do
 end
 
 local LPS = LibStub('LibPlayerSpells-1.0')
-assert(LPS, 'oUF_Dispel requires LibPlayerSpells-1.0.')
+assert(LPS, 'oUF_Dispelable requires LibPlayerSpells-1.0.')
 
 local dispelTypeFlags = {
 	Curse = LPS.constants.CURSE,
@@ -268,7 +305,7 @@ local function Disable(self)
 	self:UnregisterEvent('UNIT_AURA', Path)
 end
 
-oUF:AddElement('Dispel', Path, Enable, Disable)
+oUF:AddElement('Dispelable', Path, Enable, Disable)
 
 local function ToggleElement(enable, ...)
 	for i = 1, select('#', ...) do
@@ -276,10 +313,10 @@ local function ToggleElement(enable, ...)
 		local element = object.Dispelable
 		if (element) then
 			if (enable) then
-				object:EnableElement('Dispel')
+				object:EnableElement('Dispelable')
 				element:ForceUpdate()
 			else
-				object:DisableElement('Dispel')
+				object:DisableElement('Dispelable')
 			end
 		end
 	end
