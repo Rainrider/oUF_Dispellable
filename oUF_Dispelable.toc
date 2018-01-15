@@ -1,5 +1,5 @@
 ## Interface: 70300
-## Title: oUF_Dispel
+## Title: oUF_Dispelable
 ## Notes: oUF element for highlighting debuffs that are dispelable by the player
 ## Author: Rainrider
 ## Version: @project-version@
