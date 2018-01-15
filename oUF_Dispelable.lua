@@ -153,7 +153,7 @@ local function UpdateColor(dispelTexture, dispelType, r, g, b, a)
 end
 
 local function Update(self, event, unit)
-	if (self.unit ~= unit or unit and not UnitCanAssist('player', unit)) then return end
+	if (self.unit ~= unit) then return end
 
 	local element = self.Dispelable
 
@@ -170,12 +170,14 @@ local function Update(self, event, unit)
 	local dispelIcon = element.dispelIcon
 
 	local texture, count, dispelType, duration, expiration, id
-	for i = 1, 40 do
-		_, _, texture, count, dispelType, duration, expiration = UnitDebuff(unit, i)
+	if (UnitCanAssist('player', unit)) then
+		for i = 1, 40 do
+			_, _, texture, count, dispelType, duration, expiration = UnitDebuff(unit, i)
 
-		if (not texture or dispelType and (canDispel[dispelType] == true or canDispel[dispelType] == unit)) then
-			id = i
-			break
+			if (not texture or dispelType and (canDispel[dispelType] == true or canDispel[dispelType] == unit)) then
+				id = i
+				break
+			end
 		end
 	end
 
