@@ -85,11 +85,6 @@ local _, ns = ...
 local oUF = ns.oUF or oUF
 assert(oUF, 'oUF_Dispelable requires oUF.')
 
-oUF.colors.debuffType = {}
-for debuffType, color in next, DebuffTypeColor do
-	oUF.colors.debuffType[debuffType] = { color.r, color.g, color.b }
-end
-
 local LPS = LibStub('LibPlayerSpells-1.0')
 assert(LPS, 'oUF_Dispelable requires LibPlayerSpells-1.0.')
 
@@ -136,17 +131,17 @@ local function OnLeave(dispelIcon)
 	GameTooltip:Hide()
 end
 
---[[ Override: Dispelable.dispelTexture:UpdateColor(dispelType, r, g, b, a)
+--[[ Override: Dispelable.dispelTexture:UpdateColor(debuffType, r, g, b, a)
 Called to update the widget's color.
 
 * self       - the dispelTexture sub-widget
-* dispelType - the type of the dispelable debuff (string?)['Curse', 'Disease', 'Magic', 'Poison']
+* debuffType - the type of the dispelable debuff (string?)['Curse', 'Disease', 'Magic', 'Poison']
 * r          - the red color component (number)[0-1]
 * g          - the green color component (number)[0-1]
 * b          - the blue color component (number)[0-1]
 * a          - the alpha color component (number)[0-1]
 --]]
-local function UpdateColor(dispelTexture, dispelType, r, g, b, a)
+local function UpdateColor(dispelTexture, debuffType, r, g, b, a)
 	dispelTexture:SetVertexColor(r, g, b, a)
 end
 
@@ -167,23 +162,23 @@ local function Update(self, event, unit)
 	local dispelTexture = element.dispelTexture
 	local dispelIcon = element.dispelIcon
 
-	local texture, count, dispelType, duration, expiration, id
+	local texture, count, debuffType, duration, expiration, id
 	if (UnitCanAssist('player', unit)) then
 		for i = 1, 40 do
-			_, _, texture, count, dispelType, duration, expiration = UnitDebuff(unit, i)
+			_, _, texture, count, debuffType, duration, expiration = UnitDebuff(unit, i)
 
-			if (not texture or dispelType and (canDispel[dispelType] == true or canDispel[dispelType] == unit)) then
+			if (not texture or debuffType and (canDispel[debuffType] == true or canDispel[debuffType] == unit)) then
 				id = i
 				break
 			end
 		end
 	end
 
-	if (dispelType) then
-		local color = self.colors.debuffType[dispelType]
+	if (debuffType) then
+		local color = self.colors.debuff[debuffType]
 		local r, g, b = color[1], color[2], color[3]
 		if (dispelTexture) then
-			dispelTexture:UpdateColor(dispelType, r, g, b, dispelTexture.dispelAlpha)
+			dispelTexture:UpdateColor(debuffType, r, g, b, dispelTexture.dispelAlpha)
 		end
 
 		if (dispelIcon) then
@@ -211,25 +206,25 @@ local function Update(self, event, unit)
 		end
 	else
 		if (dispelTexture) then
-			dispelTexture:UpdateColor(dispelType, 1, 1, 1, dispelTexture.noDispelAlpha)
+			dispelTexture:UpdateColor(debuffType, 1, 1, 1, dispelTexture.noDispelAlpha)
 		end
 		if (dispelIcon) then
 			dispelIcon:Hide()
 		end
 	end
 
-	--[[ Callback: Dispelable:PostUpdate(dispelType, texture, count, duration, expiration)
+	--[[ Callback: Dispelable:PostUpdate(debuffType, texture, count, duration, expiration)
 	Called after the element has been updated.
 
 	* self       - the Dispelable element
-	* dispelType - the type of the dispelable debuff (string?)['Curse', 'Disease', 'Magic', 'Poison']
+	* debuffType - the type of the dispelable debuff (string?)['Curse', 'Disease', 'Magic', 'Poison']
 	* texture    - the texture representing the debuff icon (number?)
 	* count      - the stack count of the dispelable debuff (number?)
 	* duration   - the duration of the dispelable debuff in seconds (number?)
 	* expiration - the point in time when the debuff will expire. Can be compared to `GetTime()` (number?)
 	--]]
 	if (element.PostUpdate) then
-		element:PostUpdate(dispelType, texture, count, duration, expiration)
+		element:PostUpdate(debuffType, texture, count, duration, expiration)
 	end
 end
 
@@ -328,9 +323,9 @@ local function UpdateDispels()
 	local available = {}
 	for id, types in next, dispels do
 		if (IsSpellKnown(id, id == 89808 or id == 171021) or IsPlayerSpell(id)) then
-			for dispelType, flags in next, dispelTypeFlags do
+			for debuffType, flags in next, dispelTypeFlags do
 				if (band(types, flags) > 0) then
-					available[dispelType] = not available[dispelType]
+					available[debuffType] = not available[debuffType]
 					                        and band(LPS:GetSpellInfo(id), LPS.constants.PERSONAL) > 0
 					                        and 'player' or true
 				end
@@ -340,16 +335,16 @@ local function UpdateDispels()
 
 	if (next(available)) then
 		local areEqual = true
-		for dispelType in next, available do
-			if (not canDispel[dispelType]) then
+		for debuffType in next, available do
+			if (not canDispel[debuffType]) then
 				areEqual = false
 				break
 			end
 		end
 
 		if (areEqual) then
-			for dispelType in next, canDispel do
-				if (not available[dispelType]) then
+			for debuffType in next, canDispel do
+				if (not available[debuffType]) then
 					areEqual = false
 					break
 				end
@@ -358,8 +353,8 @@ local function UpdateDispels()
 
 		if (not areEqual) then
 			wipe(canDispel)
-			for dispelType in next, available do
-				canDispel[dispelType] = true
+			for debuffType in next, available do
+				canDispel[debuffType] = true
 			end
 
 			for _, object in next, oUF.objects do
