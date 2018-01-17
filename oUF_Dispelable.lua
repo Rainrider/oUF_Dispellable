@@ -114,8 +114,6 @@ for id, _, _, _, _, _, types in LPS:IterateSpells('HELPFUL PERSONAL', 'DISPEL ' 
 	dispels[id] = types
 end
 
-if (not next(dispels)) then return end
-
 local canDispel = {}
 
 --[[ Override: Dispelable.dispelIcon:UpdateTooltip()
@@ -302,7 +300,7 @@ local function Disable(self)
 		element.dispelIcon:Hide()
 	end
 	if (element.dispelTexture) then
-		element.dispelTexture:UpdateColor(dispelType, 1, 1, 1, element.dispelTexture.noDispelAlpha)
+		element.dispelTexture:UpdateColor(nil, 1, 1, 1, element.dispelTexture.noDispelAlpha)
 	end
 
 	self:UnregisterEvent('UNIT_AURA', Path)
@@ -310,6 +308,7 @@ end
 
 oUF:AddElement('Dispelable', Path, Enable, Disable)
 
+local firstRun = true
 local function ToggleElement(enable, ...)
 	for i = 1, select('#', ...) do
 		local object = select(i, ...)
@@ -370,7 +369,8 @@ local function UpdateDispels()
 				ToggleElement(true, header:GetChildren())
 			end
 		end
-	elseif (next(canDispel)) then
+	elseif (firstRun or next(canDispel)) then
+		firstRun = false
 		wipe(canDispel)
 		for _, object in next, oUF.objects do
 			ToggleElement(false, object)

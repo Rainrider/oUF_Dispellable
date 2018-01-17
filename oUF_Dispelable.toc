@@ -4,7 +4,7 @@
 ## Author: Rainrider
 ## Version: @project-version@
 ## RequiredDeps: oUF
-## OptionalDeps: LibStub, LibPlayerSpells-1.0
+## OptionalDeps: LibStub, LibPlayerSpells-1.0, AdiDebug
 
 @no-lib-strip@
 libs\LibStub\LibStub.lua
