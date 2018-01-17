@@ -162,19 +162,20 @@ local function Update(self, event, unit)
 	local dispelTexture = element.dispelTexture
 	local dispelIcon = element.dispelIcon
 
-	local texture, count, debuffType, duration, expiration, id
+	local texture, count, debuffType, duration, expiration, id, dispelable
 	if (UnitCanAssist('player', unit)) then
 		for i = 1, 40 do
 			_, _, texture, count, debuffType, duration, expiration = UnitDebuff(unit, i)
 
-			if (not texture or debuffType and (canDispel[debuffType] == true or canDispel[debuffType] == unit)) then
+			if (not texture or canDispel[debuffType] == true or canDispel[debuffType] == unit) then
+				dispelable = debuffType
 				id = i
 				break
 			end
 		end
 	end
 
-	if (debuffType) then
+	if (dispelable) then
 		local color = self.colors.debuff[debuffType]
 		local r, g, b = color[1], color[2], color[3]
 		if (dispelTexture) then
@@ -206,7 +207,7 @@ local function Update(self, event, unit)
 		end
 	else
 		if (dispelTexture) then
-			dispelTexture:UpdateColor(debuffType, 1, 1, 1, dispelTexture.noDispelAlpha)
+			dispelTexture:UpdateColor(nil, 1, 1, 1, dispelTexture.noDispelAlpha)
 		end
 		if (dispelIcon) then
 			dispelIcon:Hide()
@@ -224,7 +225,7 @@ local function Update(self, event, unit)
 	* expiration - the point in time when the debuff will expire. Can be compared to `GetTime()` (number?)
 	--]]
 	if (element.PostUpdate) then
-		element:PostUpdate(debuffType, texture, count, duration, expiration)
+		element:PostUpdate(dispelable, texture, count, duration, expiration)
 	end
 end
 
