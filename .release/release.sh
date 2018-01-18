@@ -1750,7 +1750,7 @@ if [ -z "$skip_zipfile" ]; then
 	### Deploy the zipfile.
 	###
 
-	upload_curseforge=$( test -z "$skip_upload" -a -n "$slug" -a -n "$cf_token" -a "$project_site" == "https://wow.curseforge.com" && echo true )
+	upload_curseforge=$( test -z "$skip_upload" -a -n "$slug" -a -n "$cf_token" && echo true )
 	upload_wowinterface=$( test -z "$skip_upload" -a -n "$tag" -a -n "$addonid" -a -n "$wowi_token" && echo true )
 	upload_github=$( test -z "$skip_upload" -a -n "$tag" -a -n "$project_github_slug" -a -n "$github_token" && echo true )
 
@@ -1815,7 +1815,7 @@ if [ -z "$skip_zipfile" ]; then
 				-H "x-api-token: $cf_token" \
 				-F "metadata=$_cf_payload" \
 				-F "file=@$archive" \
-				"https://wow.curseforge.com/api/projects/$slug/upload-file" )
+				"https://www.wowace.com/api/projects/$slug/upload-file" )
 		if [ $? -eq 0 ]; then
 			case $result in
 				200) echo "Success!" ;;
