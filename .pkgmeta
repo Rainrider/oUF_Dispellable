@@ -11,3 +11,5 @@ required-dependencies:
   - ouf
   - libstub
   - libplayerspells-1-0
+
+enable-nolib-creation: yes

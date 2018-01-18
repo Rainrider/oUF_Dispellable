@@ -4,7 +4,9 @@
 ## Author: Rainrider
 ## Version: @project-version@
 ## RequiredDeps: oUF
-## OptionalDeps: LibStub, LibPlayerSpells-1.0, AdiDebug
+## OptionalDeps: LibStub, LibPlayerSpells-1.0
+
+## X-Curse-Project-ID: 285395
 
 @no-lib-strip@
 libs\LibStub\LibStub.lua

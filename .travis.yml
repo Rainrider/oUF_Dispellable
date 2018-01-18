@@ -1,0 +1,9 @@
+sudo: false
+language: bash
+
+branches:
+  only:
+  - master
+  - /^\d+\.\d+\.\d+(-\S*)?$/
+
+script: .release/release.sh
