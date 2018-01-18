@@ -68,12 +68,14 @@ The element adds `debuffTypes` to oUF's colors table, which can be customized by
     local texture = self.Health:CreateTexture(nil, 'OVERLAY')
     texture:SetTexture('Interface\\ChatFrame\\ChatFrameBackground')
     texture:SetAllPoints()
+    texture:SetVertexColor(0, 0, 0, 0)
 
     -- Register with oUF
     button.cd = cd
     button.icon = icon
     button.overlay = overlay
     button.count = count
+    button:Hide()
 
     Dispelable.dispelIcon = button
     Dispelable.dispelTexture = texture
@@ -108,6 +110,8 @@ local dispels = {}
 for id, _, _, _, _, _, types in LPS:IterateSpells('HELPFUL PERSONAL', 'DISPEL ' .. playerClass) do
 	dispels[id] = types
 end
+
+if (not next(dispels)) then return end
 
 local canDispel = {}
 
@@ -304,7 +308,6 @@ end
 
 oUF:AddElement('Dispelable', Path, Enable, Disable)
 
-local firstRun = true
 local function ToggleElement(enable, ...)
 	for i = 1, select('#', ...) do
 		local object = select(i, ...)
@@ -365,8 +368,7 @@ local function UpdateDispels()
 				ToggleElement(true, header:GetChildren())
 			end
 		end
-	elseif (firstRun or next(canDispel)) then
-		firstRun = false
+	elseif (next(canDispel)) then
 		wipe(canDispel)
 		for _, object in next, oUF.objects do
 			ToggleElement(false, object)
