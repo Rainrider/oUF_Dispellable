@@ -1,6 +1,6 @@
 # oUF_Dispelable
 
-This is an element for the popular unitframe framework oUF ([Curse](https://www.curseforge.com/wow/addons/ouf) / [WoWI](http://www.wowinterface.com/downloads/info9994-oUF.html)).  
+This is an element for the unitframe framework oUF ([Curse](https://www.curseforge.com/wow/addons/ouf) / [WoWI](http://www.wowinterface.com/downloads/info9994-oUF.html)).  
 It does nothing by itself and requires layout support to do its magic.
 
 ## Description
@@ -25,7 +25,7 @@ If you are a layout author, here are some options how to distribute oUF_Dispelab
     `libs\LibPlayerSpells-1.0\lib.xml` and `oUF_Dispelable.lua` from your .toc file in that order.  
     While this is the simplest option, you will have to keep your copy updated manually.
   - if you are using git for source control management, you could use gitmodules to pull oUF_Dispelable and it's dependencies.
-  - you could use some automated packaging for distribution like Curse's [.pkgmeta](https://authors.curseforge.com/knowledge-base/world-of-warcraft/527-preparing-the-packagemeta-file) or [packager](https://github.com/BigWigsMods/packager). Once set up, this is the best solution.
+  - you could use some automated packaging for distribution like [packager](https://github.com/BigWigsMods/packager). Once set up, this is the best solution.
 
 Please consider making oUF_Dispelable optional for your users. The easiest way is to distribute it with your layout as a 
 separate addon and use something like `if not IsAddOnLoaded('oUF_Dispelable') then return end` before calling its 
@@ -34,8 +34,7 @@ they can also update oUF_Dispelable themselves, without you having to release a 
 some minor changes.
 
 If you are a layout user and oUF_Dispelable didn't come together with your layout despite the layout supporting it, just 
-install it as a normal addon. If you prefer the `nolib` version, make sure you also get [LibStub](https://www.curseforge.com/wow/addons/libstub) and 
-[LibPlayerSpells-1.0](https://www.curseforge.com/wow/addons/libplayerspells-1-0).
+install it as a normal addon.
 
 ## Issues
 
