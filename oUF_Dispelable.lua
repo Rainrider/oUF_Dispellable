@@ -293,6 +293,13 @@ local function Enable(self)
 		end
 	end
 
+	if (not self.colors.debuff) then
+		self.colors.debuff = {}
+		for debuffType, color in next, DebuffTypeColor do
+			self.colors.debuff[debuffType] = { color.r, color.g, color.b }
+		end
+	end
+
 	self:RegisterEvent('UNIT_AURA', Path)
 
 	return true
