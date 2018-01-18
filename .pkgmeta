@@ -12,4 +12,6 @@ required-dependencies:
   - libstub
   - libplayerspells-1-0
 
-enable-nolib-creation: yes
+ignore:
+  - libs/*/tests
+  - README.md
