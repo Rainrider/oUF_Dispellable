@@ -1808,14 +1808,14 @@ if [ -z "$skip_zipfile" ]; then
 		EOF
 		)
 
-		echo "Uploading $archive_name ($game_version $file_type) to https://wow.curseforge.com/projects/$slug"
+		echo "Uploading $archive_name ($game_version $file_type) to $project_site/projects/$slug"
 		resultfile="$releasedir/cf_result.json"
 		result=$( curl -sS --retry 3 --retry-delay 10 \
 				-w "%{http_code}" -o "$resultfile" \
 				-H "x-api-token: $cf_token" \
 				-F "metadata=$_cf_payload" \
 				-F "file=@$archive" \
-				"https://www.wowace.com/api/projects/$slug/upload-file" )
+				"$project_site/api/projects/$slug/upload-file" )
 		if [ $? -eq 0 ]; then
 			case $result in
 				200) echo "Success!" ;;
