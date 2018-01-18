@@ -15,11 +15,17 @@ Highlights debuffs that are dispelable by the player
 ## Notes
 
 At least one of the sub-widgets should be present for the element to work.
+
+The `.dispelTexture` sub-widget is updated by setting its color and alpha. It is always shown to allow the use on non-
+texture widgets without the need to override the internal update function.
+
 If mouse interactivity is enabled for the `.dispelIcon` sub-widget, 'OnEnter' and/or 'OnLeave' handlers will be set to
 display a tooltip.
+
 If `.dispelIcon` and `.dispelIcon.cd` are defined without a global name, one will be set accordingly by the element to
 prevent /fstack errors.
-The element adds `debuffTypes` to oUF's colors table, which can be customized by the layout.
+
+The element uses oUF's `debuff` colors table to apply colors to the sub-widgets.
 
 ## .dispelIcon Sub-Widgets
 
@@ -68,14 +74,14 @@ The element adds `debuffTypes` to oUF's colors table, which can be customized by
     local texture = self.Health:CreateTexture(nil, 'OVERLAY')
     texture:SetTexture('Interface\\ChatFrame\\ChatFrameBackground')
     texture:SetAllPoints()
-    texture:SetVertexColor(0, 0, 0, 0)
+    texture:SetVertexColor(1, 1, 1, 0) -- hide in case the class can't dispel at all
 
     -- Register with oUF
     button.cd = cd
     button.icon = icon
     button.overlay = overlay
     button.count = count
-    button:Hide()
+    button:Hide() -- hide in case the class can't dispel at all
 
     Dispelable.dispelIcon = button
     Dispelable.dispelTexture = texture
