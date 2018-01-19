@@ -12,6 +12,12 @@ required-dependencies:
   - libstub
   - libplayerspells-1-0
 
+manual-changelog:
+  filename: CHANGELOG.md
+  markup-type: markdown
+
 ignore:
-  - libs/*/tests
   - README.md
+  - libs/LibStub/tests
+  - libs/LibPlayerSpells-1.0/tests
+  
