@@ -137,7 +137,7 @@ local function OnEnter(dispelIcon)
 	dispelIcon:UpdateTooltip()
 end
 
-local function OnLeave(dispelIcon)
+local function OnLeave(_)
 	GameTooltip:Hide()
 end
 
@@ -151,11 +151,11 @@ Called to update the widget's color.
 * b          - the blue color component (number)[0-1]
 * a          - the alpha color component (number)[0-1]
 --]]
-local function UpdateColor(dispelTexture, debuffType, r, g, b, a)
+local function UpdateColor(dispelTexture, _, r, g, b, a)
 	dispelTexture:SetVertexColor(r, g, b, a)
 end
 
-local function Update(self, event, unit)
+local function Update(self, _, unit)
 	if (self.unit ~= unit) then return end
 
 	local element = self.Dispelable
