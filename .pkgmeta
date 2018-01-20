@@ -2,7 +2,7 @@ package-as: oUF_Dispelable
 
 externals:
   libs/LibStub:
-    url: svn://svn.wowace.com/wow/libstub/mainline/trunk
+    url: https://repos.wowace.com/wow/libstub/trunk
     tag: latest
   libs/LibPlayerSpells-1.0:
     url: https://github.com/AdiAddons/LibPlayerSpells-1.0.git
@@ -18,6 +18,3 @@ manual-changelog:
 
 ignore:
   - README.md
-  - libs/LibStub/tests
-  - libs/LibPlayerSpells-1.0/tests
-  
