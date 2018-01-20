@@ -1,19 +1,26 @@
 sudo: false
 language: bash
 
-branches:
-  only:
-  - /^\d+\.\d+\.\d+(-\S*)?$/
-
 addons:
   apt:
     packages:
-    - lua5.1
+    - luarocks
     - pandoc
 
 before_script:
+- luarocks install --local luacheck
+
+script:
+- $HOME/.luarocks/bin/luacheck .
+
+before_deploy:
 - lua .release/changelog > CHANGELOG.md
 - curl -s https://raw.githubusercontent.com/Rainrider/packager/wowace/release.sh -o .release/release.sh
 
-script:
-- bash .release/release.sh
+deploy:
+  provider: script
+  script: bash .release/release.sh
+  skip_cleanup: true
+  on:
+    tags: true
+    condition: '"$TRAVIS_TAG" =~ ^[0-9]+\.[0-9]+\.[0-9]+$'
