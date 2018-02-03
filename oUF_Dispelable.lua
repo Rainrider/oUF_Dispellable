@@ -335,42 +335,35 @@ local function ToggleElement(enable)
 	end
 end
 
+local function AreTablesEqual(a, b)
+	for k, v in next, a do
+		if (b[k] ~= v) then
+			return false
+		end
+	end
+	return true
+end
+
 local function UpdateDispels()
 	local available = {}
 	for id, types in next, dispels do
 		if (IsSpellKnown(id, id == 89808 or id == 171021) or IsPlayerSpell(id)) then
 			for debuffType, flags in next, dispelTypeFlags do
-				if (band(types, flags) > 0) then
-					available[debuffType] = not available[debuffType]
-					                        and band(LPS:GetSpellInfo(id), LPS.constants.PERSONAL) > 0
-					                        and 'player' or true
+				if (band(types, flags) > 0 and available[debuffType] ~= true) then
+					available[debuffType] = band(LPS:GetSpellInfo(id), LPS.constants.PERSONAL) > 0 and 'player' or true
 				end
 			end
 		end
 	end
 
 	if (next(available)) then
-		local areEqual = true
-		for debuffType in next, available do
-			if (not canDispel[debuffType]) then
-				areEqual = false
-				break
-			end
-		end
-
-		if (areEqual) then
-			for debuffType in next, canDispel do
-				if (not available[debuffType]) then
-					areEqual = false
-					break
-				end
-			end
-		end
+		local areEqual = AreTablesEqual(available, canDispel)
+		areEqual = areEqual and AreTablesEqual(canDispel, available)
 
 		if (not areEqual) then
 			wipe(canDispel)
 			for debuffType in next, available do
-				canDispel[debuffType] = true
+				canDispel[debuffType] = available[debuffType]
 			end
 			ToggleElement(true)
 		end
