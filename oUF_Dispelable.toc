@@ -9,9 +9,7 @@
 ## X-Curse-Project-ID: 285395
 ## X-WoWI-ID: 24540
 
-@no-lib-strip@
 libs\LibStub\LibStub.lua
 libs\LibPlayerSpells-1.0\lib.xml
-@end-no-lib-strip@
 
 oUF_Dispelable.lua

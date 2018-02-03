@@ -321,9 +321,8 @@ end
 
 oUF:AddElement('Dispelable', Path, Enable, Disable)
 
-local function ToggleElement(enable, ...)
-	for i = 1, select('#', ...) do
-		local object = select(i, ...)
+local function ToggleElement(enable)
+	for _, object in next, oUF.objects do
 		local element = object.Dispelable
 		if (element) then
 			if (enable) then
@@ -373,22 +372,11 @@ local function UpdateDispels()
 			for debuffType in next, available do
 				canDispel[debuffType] = true
 			end
-
-			for _, object in next, oUF.objects do
-				ToggleElement(true, object)
-			end
-			for _, header in next, oUF.headers do
-				ToggleElement(true, header:GetChildren())
-			end
+			ToggleElement(true)
 		end
 	elseif (next(canDispel)) then
 		wipe(canDispel)
-		for _, object in next, oUF.objects do
-			ToggleElement(false, object)
-		end
-		for _, header in next, oUF.headers do
-			ToggleElement(false, header:GetChildren())
-		end
+		ToggleElement()
 	end
 end
 
