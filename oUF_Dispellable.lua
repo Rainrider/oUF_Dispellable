@@ -1,15 +1,15 @@
 --[[
-# Element: Dispelable
+# Element: Dispellable
 
 Highlights debuffs that are dispelable by the player
 
 ## Widget
 
-.Dispelable - A `table` to hold the sub-widgets.
+.Dispellable - A `table` to hold the sub-widgets.
 
 ## Sub-Widgets
 
-.dispelIcon    - A `Button` to represent the icon of a dispelable debuff.
+.dispelIcon    - A `Button` to represent the icon of a dispellable debuff.
 .dispelTexture - A `Texture` to be colored according to the debuff type.
 
 ## Notes
@@ -30,7 +30,7 @@ The element uses oUF's `debuff` colors table to apply colors to the sub-widgets.
 ## .dispelIcon Sub-Widgets
 
 .cd      - used to display the cooldown spiral for the remaining debuff duration (Cooldown)
-.count   - used to display the stack count of the dispelable debuff (FontString)
+.count   - used to display the stack count of the dispellable debuff (FontString)
 .icon    - used to show the icon's texture (Texture)
 .overlay - used to represent the icon's border. Will be colored according to the debuff type color (Texture)
 
@@ -40,18 +40,18 @@ The element uses oUF's `debuff` colors table to apply colors to the sub-widgets.
 
 ## .dispelIcon Attributes
 
-.id   - the aura index of the dispelable debuff displayed by the widget (number)
-.unit - the unit on which the dispelable dubuff displayed by the widget has been found (string)
+.id   - the aura index of the dispellable debuff displayed by the widget (number)
+.unit - the unit on which the dispellable dubuff displayed by the widget has been found (string)
 
 ## .dispelTexture Options
 
-.dispelAlpha   - alpha value for the widget when a dispelable debuff is found. Defaults to 1 (number)[0-1]
-.noDispelAlpha - alpha value for the widget when no dispelable debuffs are found. Defaults to 0 (number)[0-1]
+.dispelAlpha   - alpha value for the widget when a dispellable debuff is found. Defaults to 1 (number)[0-1]
+.noDispelAlpha - alpha value for the widget when no dispellable debuffs are found. Defaults to 0 (number)[0-1]
 
 ## Examples
 
     -- Position and size
-    local Dispelable = {}
+    local Dispellable = {}
     local button = CreateFrame('Button', 'LayoutName_Dispel', self.Health)
     button:SetPoint('CENTER')
     button:SetSize(22, 22)
@@ -83,18 +83,18 @@ The element uses oUF's `debuff` colors table to apply colors to the sub-widgets.
     button.count = count
     button:Hide() -- hide in case the class can't dispel at all
 
-    Dispelable.dispelIcon = button
-    Dispelable.dispelTexture = texture
-    self.Dispelable = Dispelable
+    Dispellable.dispelIcon = button
+    Dispellable.dispelTexture = texture
+    self.Dispellable = Dispellable
 --]]
 
 local _, ns = ...
 
 local oUF = ns.oUF or oUF
-assert(oUF, 'oUF_Dispelable requires oUF.')
+assert(oUF, 'oUF_Dispellable requires oUF.')
 
 local LPS = LibStub('LibPlayerSpells-1.0')
-assert(LPS, 'oUF_Dispelable requires LibPlayerSpells-1.0.')
+assert(LPS, 'oUF_Dispellable requires LibPlayerSpells-1.0.')
 
 local dispelTypeFlags = {
 	Curse = LPS.constants.CURSE,
@@ -121,7 +121,7 @@ if (not next(dispels)) then return end
 
 local canDispel = {}
 
---[[ Override: Dispelable.dispelIcon:UpdateTooltip()
+--[[ Override: Dispellable.dispelIcon:UpdateTooltip()
 Called to update the widget's tooltip.
 
 * self - the dispelIcon sub-widget
@@ -141,11 +141,11 @@ local function OnLeave(_)
 	GameTooltip:Hide()
 end
 
---[[ Override: Dispelable.dispelTexture:UpdateColor(debuffType, r, g, b, a)
+--[[ Override: Dispellable.dispelTexture:UpdateColor(debuffType, r, g, b, a)
 Called to update the widget's color.
 
 * self       - the dispelTexture sub-widget
-* debuffType - the type of the dispelable debuff (string?)['Curse', 'Disease', 'Magic', 'Poison']
+* debuffType - the type of the dispellable debuff (string?)['Curse', 'Disease', 'Magic', 'Poison']
 * r          - the red color component (number)[0-1]
 * g          - the green color component (number)[0-1]
 * b          - the blue color component (number)[0-1]
@@ -158,12 +158,12 @@ end
 local function Update(self, _, unit)
 	if (self.unit ~= unit) then return end
 
-	local element = self.Dispelable
+	local element = self.Dispellable
 
-	--[[ Callback: Dispelable:PreUpdate()
+	--[[ Callback: Dispellable:PreUpdate()
 	Called before the element has been updated.
 
-	* self - the Dispelable element
+	* self - the Dispellable element
 	--]]
 	if (element.PreUpdate) then
 		element:PreUpdate()
@@ -172,20 +172,20 @@ local function Update(self, _, unit)
 	local dispelTexture = element.dispelTexture
 	local dispelIcon = element.dispelIcon
 
-	local texture, count, debuffType, duration, expiration, id, dispelable
+	local texture, count, debuffType, duration, expiration, id, dispellable
 	if (UnitCanAssist('player', unit)) then
 		for i = 1, 40 do
 			_, _, texture, count, debuffType, duration, expiration = UnitDebuff(unit, i)
 
 			if (not texture or canDispel[debuffType] == true or canDispel[debuffType] == unit) then
-				dispelable = debuffType
+				dispellable = debuffType
 				id = i
 				break
 			end
 		end
 	end
 
-	if (dispelable) then
+	if (dispellable) then
 		local color = self.colors.debuff[debuffType]
 		local r, g, b = color[1], color[2], color[3]
 		if (dispelTexture) then
@@ -224,30 +224,30 @@ local function Update(self, _, unit)
 		end
 	end
 
-	--[[ Callback: Dispelable:PostUpdate(debuffType, texture, count, duration, expiration)
+	--[[ Callback: Dispellable:PostUpdate(debuffType, texture, count, duration, expiration)
 	Called after the element has been updated.
 
-	* self       - the Dispelable element
-	* debuffType - the type of the dispelable debuff (string?)['Curse', 'Disease', 'Magic', 'Poison']
+	* self       - the Dispellable element
+	* debuffType - the type of the dispellable debuff (string?)['Curse', 'Disease', 'Magic', 'Poison']
 	* texture    - the texture representing the debuff icon (number?)
-	* count      - the stack count of the dispelable debuff (number?)
-	* duration   - the duration of the dispelable debuff in seconds (number?)
+	* count      - the stack count of the dispellable debuff (number?)
+	* duration   - the duration of the dispellable debuff in seconds (number?)
 	* expiration - the point in time when the debuff will expire. Can be compared to `GetTime()` (number?)
 	--]]
 	if (element.PostUpdate) then
-		element:PostUpdate(dispelable, texture, count, duration, expiration)
+		element:PostUpdate(dispellable, texture, count, duration, expiration)
 	end
 end
 
 local function Path(self, event, unit)
-	--[[ Override: Dispelable:Override(event, unit)
+	--[[ Override: Dispellable:Override(event, unit)
 	Used to override the internal update function.
 
-	* self  - the Dispelable element
+	* self  - the Dispellable element
 	* event - the event triggering the update (string)
 	* unit  - the unit accompaning the event (string)
 	--]]
-	return (self.Dispelable.Override or Update)(self, event, unit)
+	return (self.Dispellable.Override or Update)(self, event, unit)
 end
 
 local function ForceUpdate(element)
@@ -255,7 +255,7 @@ local function ForceUpdate(element)
 end
 
 local function Enable(self)
-	local element = self.Dispelable
+	local element = self.Dispellable
 	if (not element) then return end
 
 	element.__owner = self
@@ -306,7 +306,7 @@ local function Enable(self)
 end
 
 local function Disable(self)
-	local element = self.Dispelable
+	local element = self.Dispellable
 	if (not element) then return end
 
 	if (element.dispelIcon) then
@@ -319,17 +319,17 @@ local function Disable(self)
 	self:UnregisterEvent('UNIT_AURA', Path)
 end
 
-oUF:AddElement('Dispelable', Path, Enable, Disable)
+oUF:AddElement('Dispellable', Path, Enable, Disable)
 
 local function ToggleElement(enable)
 	for _, object in next, oUF.objects do
-		local element = object.Dispelable
+		local element = object.Dispellable
 		if (element) then
 			if (enable) then
-				object:EnableElement('Dispelable')
+				object:EnableElement('Dispellable')
 				element:ForceUpdate()
 			else
-				object:DisableElement('Dispelable')
+				object:DisableElement('Dispellable')
 			end
 		end
 	end

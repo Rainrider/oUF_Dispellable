@@ -1,6 +1,6 @@
 ## Interface: 70300
-## Title: oUF_Dispelable
-## Notes: oUF element for highlighting debuffs that are dispelable by the player
+## Title: oUF_Dispellable
+## Notes: oUF element for highlighting debuffs that are dispellable by the player
 ## Author: Rainrider
 ## Version: @project-version@
 ## RequiredDeps: oUF
@@ -12,4 +12,4 @@
 libs\LibStub\LibStub.lua
 libs\LibPlayerSpells-1.0\lib.xml
 
-oUF_Dispelable.lua
+oUF_Dispellable.lua
