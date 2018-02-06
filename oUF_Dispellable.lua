@@ -240,10 +240,10 @@ local function Update(self, _, unit)
 end
 
 local function Path(self, event, unit)
-	--[[ Override: Dispellable:Override(event, unit)
+	--[[ Override: Dispellable.Override(self, event, unit)
 	Used to override the internal update function.
 
-	* self  - the Dispellable element
+	* self  - the parent of the Dispellable element
 	* event - the event triggering the update (string)
 	* unit  - the unit accompaning the event (string)
 	--]]
