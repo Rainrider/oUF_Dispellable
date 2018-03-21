@@ -97,24 +97,29 @@ local LPS = LibStub('LibPlayerSpells-1.0')
 assert(LPS, 'oUF_Dispellable requires LibPlayerSpells-1.0.')
 
 local dispelTypeFlags = {
-	Curse = LPS.constants.CURSE,
+	Curse   = LPS.constants.CURSE,
 	Disease = LPS.constants.DISEASE,
-	Magic = LPS.constants.MAGIC,
-	Poison = LPS.constants.POISON,
+	Magic   = LPS.constants.MAGIC,
+	Poison  = LPS.constants.POISON,
 }
 
-local band = bit.band
-local wipe = table.wipe
+local band          = bit.band
+local wipe          = table.wipe
 local IsPlayerSpell = IsPlayerSpell
-local IsSpellKnown = IsSpellKnown
+local IsSpellKnown  = IsSpellKnown
 local UnitCanAssist = UnitCanAssist
-local UnitDebuff = UnitDebuff
+local UnitDebuff    = UnitDebuff
 
 local _, playerClass = UnitClass('player')
+local _, playerRace = UnitRace('player')
 local dispels = {}
 
 for id, _, _, _, _, _, types in LPS:IterateSpells('HELPFUL PERSONAL', 'DISPEL ' .. playerClass) do
 	dispels[id] = types
+end
+
+if (playerRace == 'Dwarf') then
+	dispels[20594] = select(6, LPS:GetSpellInfo(20594)) -- Stoneform
 end
 
 if (not next(dispels)) then return end

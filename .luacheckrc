@@ -6,7 +6,7 @@ read_globals = {
 
 	-- API
 	'bit', 'table.wipe',
-	'CreateFrame', 'IsPlayerSpell', 'IsSpellKnown', 'UnitCanAssist', 'UnitClass', 'UnitDebuff',
+	'CreateFrame', 'IsPlayerSpell', 'IsSpellKnown', 'UnitCanAssist', 'UnitClass', 'UnitDebuff', 'UnitRace',
 
 	-- Widgets
 	'GameTooltip',
