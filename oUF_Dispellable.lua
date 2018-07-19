@@ -122,6 +122,10 @@ if (playerRace == 'Dwarf') then
 	dispels[20594] = select(6, LPS:GetSpellInfo(20594)) -- Stoneform
 end
 
+if (playerRace == 'DarkIronDwarf') then
+	dispels[265221] = select(6, LPS:GetSpellInfo(265221)) -- Fireblood
+end
+
 if (not next(dispels)) then return end
 
 local canDispel = {}
@@ -142,7 +146,7 @@ local function OnEnter(dispelIcon)
 	dispelIcon:UpdateTooltip()
 end
 
-local function OnLeave(_)
+local function OnLeave()
 	GameTooltip:Hide()
 end
 
@@ -180,7 +184,7 @@ local function Update(self, _, unit)
 	local texture, count, debuffType, duration, expiration, id, dispellable
 	if (UnitCanAssist('player', unit)) then
 		for i = 1, 40 do
-			_, _, texture, count, debuffType, duration, expiration = UnitDebuff(unit, i)
+			_, texture, count, debuffType, duration, expiration = UnitDebuff(unit, i)
 
 			if (not texture or canDispel[debuffType] == true or canDispel[debuffType] == unit) then
 				dispellable = debuffType
@@ -352,7 +356,7 @@ end
 local function UpdateDispels()
 	local available = {}
 	for id, types in next, dispels do
-		if (IsSpellKnown(id, id == 89808 or id == 171021) or IsPlayerSpell(id)) then
+		if (IsSpellKnown(id, id == 89808) or IsPlayerSpell(id)) then
 			for debuffType, flags in next, dispelTypeFlags do
 				if (band(types, flags) > 0 and available[debuffType] ~= true) then
 					available[debuffType] = band(LPS:GetSpellInfo(id), LPS.constants.PERSONAL) > 0 and 'player' or true
