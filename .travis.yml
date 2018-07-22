@@ -9,11 +9,14 @@ addons:
 
 before_script:
 - luarocks install --local luacheck
+- PATH=$HOME/.luarocks/bin:$PATH
+- eval $(luarocks path --bin)
 
 script:
-- $HOME/.luarocks/bin/luacheck .
+- luacheck .
 
 before_deploy:
+- lua .release/libstrip
 - lua .release/changelog > CHANGELOG.md
 - curl -s https://raw.githubusercontent.com/Rainrider/packager/wowace/release.sh -o .release/release.sh
 
