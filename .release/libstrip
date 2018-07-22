@@ -10,7 +10,7 @@ file:close()
 file = io.open(addon .. '.toc', 'r+')
 local toc = file:read('*all')
 file:seek('set')
-file:write((toc:gsub('#@lib%-replace', libs)))
+file:write((toc:gsub('#@lib%-replace@', libs)))
 file:close()
 
 -- vim: set filetype=lua :
