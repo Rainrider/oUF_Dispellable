@@ -1,4 +1,4 @@
-## Interface: 90001
+## Interface: 90200
 ## Title: oUF_Dispellable
 ## Notes: oUF element for highlighting debuffs that are dispellable by the player
 ## Author: Rainrider
@@ -9,6 +9,9 @@
 ## X-Curse-Project-ID: 285395
 ## X-WoWI-ID: 24540
 
-#@lib-replace@
+#@non-debug@
+# libs\LibStub\LibStub.lua
+# libs\LibPlayerSpells-1.0\lib.xml
+#@end-non-debug@
 
 oUF_Dispellable.lua
