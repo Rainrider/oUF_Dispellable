@@ -17,16 +17,6 @@ and [Cleansed by Flame](http://www.wowdb.com/spells/205625) to only highlight th
 The element is fully documented and follows the current oUF guidelines for documentation. Please take a look at the code 
 for details and examples. You could also consult the [wiki](https://github.com/Rainrider/oUF_Dispellable/wiki).
 
-## How to install
-
-If you are a layout author, here are some options how to distribute oUF_Dispellable with your layout:
-
-  - unzip the whole embedded package into your layout's folder and load `libs\LibStub\LibStub.lua`,  
-    `libs\LibPlayerSpells-1.0\lib.xml` and `oUF_Dispellable.lua` from your .toc file in that order.  
-    While this is the simplest option, you will have to keep your copy updated manually.
-  - if you are using git for source control management, you could use gitmodules to pull oUF_Dispellable and it's dependencies.
-  - you could use some automated packaging for distribution like [packager](https://github.com/BigWigsMods/packager). Once set up, this is the best solution.
-
 Please consider making oUF_Dispellable optional for your users. The easiest way is to distribute it with your layout as a 
 separate addon and use something like `if not IsAddOnLoaded('oUF_Dispellable') then return end` before calling its 
 functionality. Users can then opt-out of using it by just uninstalling it without having to edit your code. This way 
@@ -38,9 +28,9 @@ install it as a normal addon.
 
 ## Issues
 
-If you have any problems using oUF_Dispellable, please open an issue at [Github](https://github.com/Rainrider/oUF_Dispellable/issues). 
-Remember to first search if there is an open/closed issue concerning your problem.
+If you have any problems using oUF_Dispellable, please open an issue at [GitHub](https://github.com/Rainrider/oUF_Dispellable/issues). 
+Remember to first search if there is an existing issue concerning your problem.
 
 ## License
 
-Please read the included LICENSE.
+Please read the included [LICENSE](https://github.com/Rainrider/oUF_Dispellable/blob/main/LICENSE).
