@@ -1,16 +1,27 @@
 std = 'lua51'
 
+quiet = 1 -- suppress report output for files without warnings
+
 read_globals = {
 	-- CONSTANTS
 	'DebuffTypeColor',
 
+	bit = {fields = {'band'}},
+	table = {fields = {'wipe'}},
+
 	-- API
-	'bit', 'table.wipe',
-	'CreateFrame', 'IsPlayerSpell', 'IsSpellKnown', 'UnitCanAssist', 'UnitClass', 'UnitDebuff', 'UnitRace',
+	'CreateFrame',
+	'IsPlayerSpell',
+	'IsSpellKnown',
+	'UnitCanAssist',
+	'UnitClass',
+	'UnitDebuff',
+	'UnitRace',
 
 	-- Widgets
 	'GameTooltip',
 
 	-- Namespaces
-	'LibStub', 'oUF',
+	'LibStub',
+	'oUF',
 }
