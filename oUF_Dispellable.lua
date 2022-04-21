@@ -354,12 +354,19 @@ local function ToggleElement(enable)
 	end
 end
 
-local function AreTablesEqual(a, b)
+-- shallow comparison of primitive key/value types
+local function TablesMatch(a, b)
 	for k, v in next, a do
 		if b[k] ~= v then
 			return false
 		end
 	end
+	for k, v in next, b do
+		if a[k] ~= v then
+			return false
+		end
+	end
+
 	return true
 end
 
@@ -376,10 +383,7 @@ local function UpdateDispels()
 	end
 
 	if next(available) then
-		local areEqual = AreTablesEqual(available, canDispel)
-		areEqual = areEqual and AreTablesEqual(canDispel, available)
-
-		if not areEqual then
+		if not TablesMatch(available, canDispel) then
 			wipe(canDispel)
 			for debuffType in next, available do
 				canDispel[debuffType] = available[debuffType]
