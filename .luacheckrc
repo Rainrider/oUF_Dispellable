@@ -6,8 +6,8 @@ read_globals = {
 	-- CONSTANTS
 	'DebuffTypeColor',
 
-	bit = {fields = {'band'}},
-	table = {fields = {'wipe'}},
+	bit = { fields = { 'band' } },
+	table = { fields = { 'wipe' } },
 
 	-- API
 	'CreateFrame',
