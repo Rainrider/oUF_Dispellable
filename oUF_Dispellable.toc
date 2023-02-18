@@ -1,4 +1,4 @@
-## Interface: 90200
+## Interface: 100005
 ## Title: oUF_Dispellable
 ## Notes: oUF element for highlighting debuffs that are dispellable by the player
 ## Author: Rainrider

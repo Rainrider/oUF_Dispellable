@@ -108,7 +108,6 @@ local wipe = table.wipe
 local IsPlayerSpell = IsPlayerSpell
 local IsSpellKnown = IsSpellKnown
 local UnitCanAssist = UnitCanAssist
-local UnitDebuff = UnitDebuff
 
 local _, playerClass = UnitClass('player')
 local _, playerRace = UnitRace('player')
@@ -132,13 +131,19 @@ end
 
 local canDispel = {}
 
+local function IsDispellable(aura, unit)
+	local dispellable = canDispel[aura.dispelName]
+
+	return dispellable == true or dispellable == unit
+end
+
 --[[ Override: Dispellable.dispelIcon:UpdateTooltip()
 Called to update the widget's tooltip.
 
 * self - the dispelIcon sub-widget
 --]]
 local function UpdateTooltip(dispelIcon)
-	GameTooltip:SetUnitAura(dispelIcon.unit, dispelIcon.id, 'HARMFUL')
+	GameTooltip:SetUnitDebuffByAuraInstanceID(dispelIcon.unit, dispelIcon.id)
 end
 
 local function OnEnter(dispelIcon)
@@ -168,7 +173,113 @@ local function UpdateColor(dispelTexture, _, r, g, b, a)
 	dispelTexture:SetVertexColor(r, g, b, a)
 end
 
-local function Update(self, _, unit)
+local function UpdateDebuffs(self, updateInfo)
+	local unit = self.unit
+	local element = self.Dispellable
+	local debuffs = element.debuffs
+
+	if not UnitCanAssist('player', unit) then
+		wipe(debuffs)
+
+		return
+	end
+
+	if not updateInfo or updateInfo.isFullUpdate then
+		wipe(debuffs)
+		local slots = { UnitAuraSlots(unit, 'HARMFUL') }
+
+		for i = 2, #slots do
+			local debuff = C_UnitAuras.GetAuraDataBySlot(unit, slots[i])
+
+			if IsDispellable(debuff, unit) then
+				debuffs[debuff.auraInstanceID] = debuff
+			end
+		end
+	else
+		for _, aura in next, updateInfo.addedAuras or {} do
+			if aura.isHarmful and IsDispellable(aura, unit) then
+				debuffs[aura.auraInstanceID] = aura
+			end
+		end
+
+		for _, auraInstanceID in next, updateInfo.updatedAuraInstanceIDs or {} do
+			local aura = C_UnitAuras.GetAuraByAuraInstanceID(unit, auraInstanceID)
+
+			if aura.isHarmful and IsDispellable(aura, unit) then
+				debuffs[aura.auraInstanceID] = aura
+			end
+		end
+
+		for _, auraInstanceID in next, updateInfo.removedAuraInstanceIDs or {} do
+			debuffs[auraInstanceID] = nil
+		end
+	end
+end
+
+local function UpdateDisplay(self)
+	local element = self.Dispellable
+	local lowestID = nil
+
+	for auraInstanceID in next, element.debuffs do
+		if not lowestID or auraInstanceID < lowestID then
+			lowestID = auraInstanceID
+		end
+	end
+
+	local dispelTexture = element.dispelTexture
+	local dispelIcon = element.dispelIcon
+
+	if lowestID and lowestID ~= element.__current then
+		element.__current = lowestID
+		local debuff = element.debuffs[lowestID]
+		local debuffType = debuff.dispelName
+		local r, g, b = self.colors.debuff[debuffType]:GetRGB()
+
+		if dispelTexture then
+			dispelTexture:UpdateColor(debuffType, r, g, b, dispelTexture.dispelAlpha)
+		end
+
+		if dispelIcon then
+			dispelIcon.unit = self.unit
+			dispelIcon.id = lowestID
+			if dispelIcon.icon then
+				dispelIcon.icon:SetTexture(debuff.icon)
+			end
+			if dispelIcon.overlay then
+				dispelIcon.overlay:SetVertexColor(r, g, b)
+			end
+			if dispelIcon.count then
+				local count = debuff.applications
+				dispelIcon.count:SetText(count and count > 1 and count or '')
+			end
+			if dispelIcon.cd then
+				local duration = debuff.duration
+
+				if duration > 0 then
+					dispelIcon.cd:SetCooldown(debuff.expirationTime - duration, duration, debuff.timeMod)
+					dispelIcon.cd:Show()
+				else
+					dispelIcon.cd:Hide()
+				end
+			end
+
+			dispelIcon:Show()
+		end
+
+		return debuff
+	elseif not lowestID and element.__current ~= nil then
+		element.__current = nil
+
+		if dispelTexture then
+			dispelTexture:UpdateColor(nil, 1, 1, 1, dispelTexture.noDispelAlpha)
+		end
+		if dispelIcon then
+			dispelIcon:Hide()
+		end
+	end
+end
+
+local function Update(self, _, unit, updateInfo)
 	if self.unit ~= unit then
 		return
 	end
@@ -184,73 +295,17 @@ local function Update(self, _, unit)
 		element:PreUpdate()
 	end
 
-	local dispelTexture = element.dispelTexture
-	local dispelIcon = element.dispelIcon
-
-	local texture, count, debuffType, duration, expiration, id, dispellable
-	if UnitCanAssist('player', unit) then
-		for i = 1, 40 do
-			_, texture, count, debuffType, duration, expiration = UnitDebuff(unit, i)
-
-			if not texture or canDispel[debuffType] == true or canDispel[debuffType] == unit then
-				dispellable = debuffType
-				id = i
-				break
-			end
-		end
-	end
-
-	if dispellable then
-		local color = self.colors.debuff[debuffType]
-		local r, g, b = color[1], color[2], color[3]
-		if dispelTexture then
-			dispelTexture:UpdateColor(debuffType, r, g, b, dispelTexture.dispelAlpha)
-		end
-
-		if dispelIcon then
-			dispelIcon.unit = unit
-			dispelIcon.id = id
-			if dispelIcon.icon then
-				dispelIcon.icon:SetTexture(texture)
-			end
-			if dispelIcon.overlay then
-				dispelIcon.overlay:SetVertexColor(r, g, b)
-			end
-			if dispelIcon.count then
-				dispelIcon.count:SetText(count and count > 1 and count)
-			end
-			if dispelIcon.cd then
-				if duration and duration > 0 then
-					dispelIcon.cd:SetCooldown(expiration - duration, duration)
-					dispelIcon.cd:Show()
-				else
-					dispelIcon.cd:Hide()
-				end
-			end
-
-			dispelIcon:Show()
-		end
-	else
-		if dispelTexture then
-			dispelTexture:UpdateColor(nil, 1, 1, 1, dispelTexture.noDispelAlpha)
-		end
-		if dispelIcon then
-			dispelIcon:Hide()
-		end
-	end
+	UpdateDebuffs(self, updateInfo)
+	local displayed = UpdateDisplay(self)
 
 	--[[ Callback: Dispellable:PostUpdate(debuffType, texture, count, duration, expiration)
 	Called after the element has been updated.
 
-	* self       - the Dispellable element
-	* debuffType - the type of the dispellable debuff (string?)['Curse', 'Disease', 'Magic', 'Poison']
-	* texture    - the texture representing the debuff icon (number?)
-	* count      - the stack count of the dispellable debuff (number?)
-	* duration   - the duration of the dispellable debuff in seconds (number?)
-	* expiration - the point in time when the debuff will expire. Can be compared to `GetTime()` (number?)
+	* self      - the Dispellable element
+	* displayed - the displayed debuff (UnitAuraInfo?)
 	--]]
 	if element.PostUpdate then
-		element:PostUpdate(dispellable, texture, count, duration, expiration)
+		element:PostUpdate(displayed)
 	end
 end
 
@@ -276,6 +331,7 @@ local function Enable(self)
 	end
 
 	element.__owner = self
+	element.debuffs = {}
 	element.ForceUpdate = ForceUpdate
 
 	local dispelTexture = element.dispelTexture
@@ -312,8 +368,8 @@ local function Enable(self)
 
 	if not self.colors.debuff then
 		self.colors.debuff = {}
-		for debuffType, color in next, DebuffTypeColor do
-			self.colors.debuff[debuffType] = { color.r, color.g, color.b }
+		for debuffType, color in next, oUF.colors.debuff do
+			self.colors.debuff[debuffType] = color
 		end
 	end
 

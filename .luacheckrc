@@ -10,12 +10,15 @@ read_globals = {
 	table = { fields = { 'wipe' } },
 
 	-- API
+    C_UnitAuras = {
+		fields = { 'GetAuraByAuraInstanceID', 'GetAuraDataBySlot' }
+	},
 	'CreateFrame',
 	'IsPlayerSpell',
 	'IsSpellKnown',
+	'UnitAuraSlots',
 	'UnitCanAssist',
 	'UnitClass',
-	'UnitDebuff',
 	'UnitRace',
 
 	-- Widgets
