@@ -186,7 +186,7 @@ local function UpdateDebuffs(self, updateInfo)
 
 	if not updateInfo or updateInfo.isFullUpdate then
 		wipe(debuffs)
-		local slots = { UnitAuraSlots(unit, 'HARMFUL') }
+		local slots = { C_UnitAuras.GetAuraSlots(unit, 'HARMFUL') }
 
 		for i = 2, #slots do
 			local debuff = C_UnitAuras.GetAuraDataBySlot(unit, slots[i])
