@@ -21,6 +21,13 @@ jobs:
         with:
           show-progress: false
 
+      - name: Format
+        uses: JohnnyMorganz/stylua-action@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          version: latest
+          args: --check .
+
       - name: Lint
         uses: nebularg/actions-luacheck@v1
         with:
