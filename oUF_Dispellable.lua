@@ -12,6 +12,15 @@ Highlights debuffs that are dispelable by the player
 .dispelIcon    - A `Button` to represent the icon of a dispellable debuff.
 .dispelTexture - A `Texture` to be colored according to the debuff type.
 
+## Options
+
+The element uses oUF's `dispel` colors to apply colors to the sub-widgets.
+
+.dispelColorCurve - A [`color curve object`](https://warcraft.wiki.gg/wiki/ScriptObject_ColorCurveObject) used to color
+                    the sub-widgets by the dispel type.
+.resetColor       - A [`ColorMixin`](https://warcraft.wiki.gg/wiki/ColorMixin) used to reset the color of the
+                    sub-widgets when no dispellable debuff is found.
+
 ## Notes
 
 At least one of the sub-widgets should be present for the element to work.
@@ -24,8 +33,6 @@ display a tooltip.
 
 If `.dispelIcon` and `.dispelIcon.cd` are defined without a global name, one will be set accordingly by the element to
 prevent /fstack errors.
-
-The element uses oUF's `debuff` colors table to apply colors to the sub-widgets.
 
 ## .dispelIcon Sub-Widgets
 
@@ -74,14 +81,12 @@ The element uses oUF's `debuff` colors table to apply colors to the sub-widgets.
     local texture = self.Health:CreateTexture(nil, 'OVERLAY')
     texture:SetTexture('Interface\\ChatFrame\\ChatFrameBackground')
     texture:SetAllPoints()
-    texture:SetVertexColor(1, 1, 1, 0) -- hide in case the class can't dispel at all
 
     -- Register with oUF
     button.cd = cd
     button.icon = icon
     button.overlay = overlay
     button.count = count
-    button:Hide() -- hide in case the class can't dispel at all
 
     Dispellable.dispelIcon = button
     Dispellable.dispelTexture = texture
@@ -118,22 +123,28 @@ local function OnLeave()
 	GameTooltip:Hide()
 end
 
---[[ Override: Dispellable.dispelTexture:UpdateColor(debuffType, r, g, b, a)
+--[[ Override: Dispellable:UpdateColor(unit, debuff)
 Called to update the widget's color.
 
-* self       - the dispelTexture sub-widget
-* debuffType - the type of the dispellable debuff (string?)['Curse', 'Disease', 'Magic', 'Poison']
-* r          - the red color component (number)[0-1]
-* g          - the green color component (number)[0-1]
-* b          - the blue color component (number)[0-1]
-* a          - the alpha color component (number)[0-1]
+* self   - the Dispellable element
+* unit   - the unit on which the displayed debuff has been applied or removed (string)
+* debuff - the displayed debuff or nil if none (UnitAuraInfo?)
 --]]
-local function UpdateColor(dispelTexture, _, r, g, b, a)
-	dispelTexture:SetVertexColor(r, g, b, a)
+local function UpdateColor(element, unit, debuff)
+	local color = debuff and C_UnitAuras.GetAuraDispelTypeColor(unit, debuff.auraInstanceID, element.dispelColorCurve)
+		or element.resetColor
+
+	local icon = element.dispelIcon
+	if icon and icon.overlay then
+		icon.overlay:SetVertexColor(color:GetRGBA())
+	end
+
+	if element.dispelTexture then
+		element.dispelTexture:SetVertexColor(color:GetRGBA())
+	end
 end
 
-local function UpdateDebuffs(self, updateInfo)
-	local unit = self.unit
+local function UpdateDebuffs(self, unit, updateInfo)
 	local element = self.Dispellable
 	local debuffs = element.debuffs
 	local filter = 'HARMFUL|RAID'
@@ -173,7 +184,7 @@ local function UpdateDebuffs(self, updateInfo)
 	end
 end
 
-local function UpdateDisplay(self)
+local function UpdateDisplay(self, unit)
 	local element = self.Dispellable
 	local lowestID = nil
 
@@ -183,37 +194,24 @@ local function UpdateDisplay(self)
 		end
 	end
 
-	local dispelTexture = element.dispelTexture
 	local dispelIcon = element.dispelIcon
+	local debuff = lowestID and element.debuffs[lowestID]
 
-	if lowestID and lowestID ~= element.__current then
-		element.__current = lowestID
-		local debuff = element.debuffs[lowestID]
-		local debuffType = debuff.dispelName
-		local r, g, b = self.colors.debuff[debuffType]:GetRGB()
-
-		if dispelTexture then
-			dispelTexture:UpdateColor(debuffType, r, g, b, dispelTexture.dispelAlpha)
-		end
-
+	if debuff then
 		if dispelIcon then
 			dispelIcon.unit = self.unit
 			dispelIcon.id = lowestID
 			if dispelIcon.icon then
 				dispelIcon.icon:SetTexture(debuff.icon)
 			end
-			if dispelIcon.overlay then
-				dispelIcon.overlay:SetVertexColor(r, g, b)
-			end
 			if dispelIcon.count then
-				local count = debuff.applications
-				dispelIcon.count:SetText(count and count > 1 and count or '')
+				dispelIcon.count:SetText(C_UnitAuras.GetAuraApplicationDisplayCount(unit, debuff.auraInstanceID))
 			end
 			if dispelIcon.cd then
-				local duration = debuff.duration
+				local duration = C_UnitAuras.GetAuraDuration(unit, debuff.auraInstanceID)
 
-				if duration > 0 then
-					dispelIcon.cd:SetCooldown(debuff.expirationTime - duration, duration, debuff.timeMod)
+				if duration then
+					dispelIcon.cd:SetCooldownFromDurationObject(duration)
 					dispelIcon.cd:Show()
 				else
 					dispelIcon.cd:Hide()
@@ -222,18 +220,15 @@ local function UpdateDisplay(self)
 
 			dispelIcon:Show()
 		end
-
-		return debuff
-	elseif not lowestID and element.__current ~= nil then
-		element.__current = nil
-
-		if dispelTexture then
-			dispelTexture:UpdateColor(nil, 1, 1, 1, dispelTexture.noDispelAlpha)
-		end
+	else
 		if dispelIcon then
 			dispelIcon:Hide()
 		end
 	end
+
+	element:UpdateColor(unit, debuff)
+
+	return debuff
 end
 
 local function Update(self, _, unit, updateInfo)
@@ -252,8 +247,8 @@ local function Update(self, _, unit, updateInfo)
 		element:PreUpdate()
 	end
 
-	UpdateDebuffs(self, updateInfo)
-	local displayed = UpdateDisplay(self)
+	UpdateDebuffs(self, unit, updateInfo)
+	local displayed = UpdateDisplay(self, unit)
 
 	--[[ Callback: Dispellable:PostUpdate(debuffType, texture, count, duration, expiration)
 	Called after the element has been updated.
@@ -291,13 +286,6 @@ local function Enable(self)
 	element.debuffs = {}
 	element.ForceUpdate = ForceUpdate
 
-	local dispelTexture = element.dispelTexture
-	if dispelTexture then
-		dispelTexture.dispelAlpha = dispelTexture.dispelAlpha or 1
-		dispelTexture.noDispelAlpha = dispelTexture.noDispelAlpha or 0
-		dispelTexture.UpdateColor = dispelTexture.UpdateColor or UpdateColor
-	end
-
 	local dispelIcon = element.dispelIcon
 	if dispelIcon then
 		-- prevent /fstack errors
@@ -323,12 +311,33 @@ local function Enable(self)
 		end
 	end
 
-	if not self.colors.debuff then
-		self.colors.debuff = {}
-		for debuffType, color in next, oUF.colors.debuff do
-			self.colors.debuff[debuffType] = color
-		end
+	local dispelTexture = element.dispelTexture
+	if dispelTexture then
+		dispelTexture.dispelAlpha = dispelTexture.dispelAlpha or 1
+		dispelTexture.noDispelAlpha = dispelTexture.noDispelAlpha or 0
 	end
+
+	if not element.dispelColorCurve then
+		local curve = _G.C_CurveUtil.CreateColorCurve()
+		curve:SetType(_G.Enum.LuaCurveType.Step)
+
+		for _, dispel in next, oUF.Enum.DispelType do
+			local color = self.colors.dispel[dispel]
+
+			if color then
+				local r, g, b = color:GetRGB()
+				curve:AddPoint(dispel, _G.CreateColor(r, g, b, dispelTexture and dispelTexture.dispelAlpha))
+			end
+		end
+
+		element.dispelColorCurve = curve
+	end
+
+	if not element.resetColor then
+		element.resetColor = _G.CreateColor(1, 1, 1, dispelTexture and dispelTexture.noDispelAlpha)
+	end
+
+	element.UpdateColor = element.UpdateColor or UpdateColor
 
 	self:RegisterEvent('UNIT_AURA', Path)
 
@@ -341,14 +350,13 @@ local function Disable(self)
 		return
 	end
 
+	self:UnregisterEvent('UNIT_AURA', Path)
+
 	if element.dispelIcon then
 		element.dispelIcon:Hide()
 	end
-	if element.dispelTexture then
-		element.dispelTexture:UpdateColor(nil, 1, 1, 1, element.dispelTexture.noDispelAlpha)
-	end
 
-	self:UnregisterEvent('UNIT_AURA', Path)
+	element:UpdateColor(self.unit)
 end
 
 oUF:AddElement('Dispellable', Path, Enable, Disable)

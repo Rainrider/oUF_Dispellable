@@ -8,14 +8,14 @@ It does nothing by itself and requires layout support to do its magic.
 oUF_Dispellable provides functionality to highlight debuffs dispellable by the player. It can display either a texture 
 colored by the debuff type, or an icon representing the found dispellable debuff, or both.
 
-It enables and disables itself automatically based on whether the player can dispel or not and keeps an always updated 
-list of the dispel spells available to the player. It also keeps track of self-dispels like [Grimoire: Imp](http://www.wowdb.com/spells/111859) 
-and [Cleansed by Flame](http://www.wowdb.com/spells/205625) to only highlight the player frame when only those are known.
+Since Midnight the addon relies on the `HARMFUL|RAID` aura filter to get debuffs dispellable by the player. The addon
+does not know in advance if and what debuff types you can dispel and is thus always active, even when the player does
+not know any dispelling spells.
 
 ## How to use (for layout authors)
 
 The element is fully documented and follows the current oUF guidelines for documentation. Please take a look at the code 
-for details and examples. You could also consult the [wiki](https://github.com/Rainrider/oUF_Dispellable/wiki).
+for details and examples.
 
 Please consider making oUF_Dispellable optional for your users. The easiest way is to distribute it with your layout as a 
 separate addon and use something like `if not IsAddOnLoaded('oUF_Dispellable') then return end` before calling its 
