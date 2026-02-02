@@ -4,15 +4,9 @@
 ## Author: Rainrider
 ## Version: @project-version@
 ## RequiredDeps: oUF
-## OptionalDeps: LibStub, LibPlayerSpells-1.0
 
 ## X-Curse-Project-ID: 285395
 ## X-Wago-ID: baNDRgKo
 ## X-WoWI-ID: 24540
-
-#@non-debug@
-# libs\LibStub\LibStub.lua
-# libs\LibPlayerSpells-1.0\lib.xml
-#@end-non-debug@
 
 oUF_Dispellable.lua
