@@ -12,8 +12,11 @@ read_globals = {
 	-- API
     C_UnitAuras = {
 		fields = {
+			'GetAuraApplicationDisplayCount',
 			'GetAuraByAuraInstanceID',
 			'GetAuraDataBySlot',
+			'GetAuraDispelTypeColor',
+			'GetAuraDuration',
 			'GetAuraSlots',
 			'IsAuraFilteredOutByInstanceID',
 		},
