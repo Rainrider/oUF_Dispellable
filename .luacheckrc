@@ -11,7 +11,12 @@ read_globals = {
 
 	-- API
     C_UnitAuras = {
-		fields = { 'GetAuraByAuraInstanceID', 'GetAuraDataBySlot', 'GetAuraSlots' }
+		fields = {
+			'GetAuraByAuraInstanceID',
+			'GetAuraDataBySlot',
+			'GetAuraSlots',
+			'IsAuraFilteredOutByInstanceID',
+		},
 	},
 	'CreateFrame',
 	'IsPlayerSpell',

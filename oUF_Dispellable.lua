@@ -93,49 +93,8 @@ local _, ns = ...
 local oUF = ns.oUF or oUF
 assert(oUF, 'oUF_Dispellable requires oUF.')
 
-local LPS = LibStub('LibPlayerSpells-1.0')
-assert(LPS, 'oUF_Dispellable requires LibPlayerSpells-1.0.')
-
-local dispelTypeFlags = {
-	Curse = LPS.constants.CURSE,
-	Disease = LPS.constants.DISEASE,
-	Magic = LPS.constants.MAGIC,
-	Poison = LPS.constants.POISON,
-}
-
-local band = bit.band
 local wipe = table.wipe
-local IsPlayerSpell = IsPlayerSpell
-local IsSpellKnown = IsSpellKnown
 local UnitCanAssist = UnitCanAssist
-
-local _, playerClass = UnitClass('player')
-local _, playerRace = UnitRace('player')
-local dispels = {}
-
-for id, _, _, _, _, _, types in LPS:IterateSpells('HELPFUL PERSONAL', 'DISPEL ' .. playerClass) do
-	dispels[id] = types
-end
-
-if playerRace == 'Dwarf' then
-	dispels[20594] = select(6, LPS:GetSpellInfo(20594)) -- Stoneform
-end
-
-if playerRace == 'DarkIronDwarf' then
-	dispels[265221] = select(6, LPS:GetSpellInfo(265221)) -- Fireblood
-end
-
-if not next(dispels) then
-	return
-end
-
-local canDispel = {}
-
-local function IsDispellable(aura, unit)
-	local dispellable = canDispel[aura.dispelName]
-
-	return dispellable == true or dispellable == unit
-end
 
 --[[ Override: Dispellable.dispelIcon:UpdateTooltip()
 Called to update the widget's tooltip.
@@ -177,6 +136,7 @@ local function UpdateDebuffs(self, updateInfo)
 	local unit = self.unit
 	local element = self.Dispellable
 	local debuffs = element.debuffs
+	local filter = 'HARMFUL|RAID'
 
 	if not UnitCanAssist('player', unit) then
 		wipe(debuffs)
@@ -186,27 +146,24 @@ local function UpdateDebuffs(self, updateInfo)
 
 	if not updateInfo or updateInfo.isFullUpdate then
 		wipe(debuffs)
-		local slots = { C_UnitAuras.GetAuraSlots(unit, 'HARMFUL') }
+		local slots = { C_UnitAuras.GetAuraSlots(unit, filter) }
 
 		for i = 2, #slots do
 			local debuff = C_UnitAuras.GetAuraDataBySlot(unit, slots[i])
 
-			if IsDispellable(debuff, unit) then
-				debuffs[debuff.auraInstanceID] = debuff
-			end
+			debuffs[debuff.auraInstanceID] = debuff
 		end
 	else
 		for _, aura in next, updateInfo.addedAuras or {} do
-			if aura.isHarmful and IsDispellable(aura, unit) then
+			if not C_UnitAuras.IsAuraFilteredOutByInstanceID(unit, aura.auraInstanceID, filter) then
 				debuffs[aura.auraInstanceID] = aura
 			end
 		end
 
 		for _, auraInstanceID in next, updateInfo.updatedAuraInstanceIDs or {} do
-			local aura = C_UnitAuras.GetAuraByAuraInstanceID(unit, auraInstanceID)
-
-			if aura.isHarmful and IsDispellable(aura, unit) then
-				debuffs[aura.auraInstanceID] = aura
+			if not C_UnitAuras.IsAuraFilteredOutByInstanceID(unit, auraInstanceID, filter) then
+				local aura = C_UnitAuras.GetAuraByAuraInstanceID(unit, auraInstanceID)
+				debuffs[auraInstanceID] = aura
 			end
 		end
 
@@ -395,63 +352,3 @@ local function Disable(self)
 end
 
 oUF:AddElement('Dispellable', Path, Enable, Disable)
-
-local function ToggleElement(enable)
-	for _, object in next, oUF.objects do
-		local element = object.Dispellable
-		if element then
-			if enable then
-				object:EnableElement('Dispellable')
-				element:ForceUpdate()
-			else
-				object:DisableElement('Dispellable')
-			end
-		end
-	end
-end
-
--- shallow comparison of primitive key/value types
-local function TablesMatch(a, b)
-	for k, v in next, a do
-		if b[k] ~= v then
-			return false
-		end
-	end
-	for k, v in next, b do
-		if a[k] ~= v then
-			return false
-		end
-	end
-
-	return true
-end
-
-local function UpdateDispels()
-	local available = {}
-	for id, types in next, dispels do
-		if IsSpellKnown(id, id == 89808) or IsPlayerSpell(id) then
-			for debuffType, flags in next, dispelTypeFlags do
-				if band(types, flags) > 0 and available[debuffType] ~= true then
-					available[debuffType] = band(LPS:GetSpellInfo(id), LPS.constants.PERSONAL) > 0 and 'player' or true
-				end
-			end
-		end
-	end
-
-	if next(available) then
-		if not TablesMatch(available, canDispel) then
-			wipe(canDispel)
-			for debuffType in next, available do
-				canDispel[debuffType] = available[debuffType]
-			end
-			ToggleElement(true)
-		end
-	elseif next(canDispel) then
-		wipe(canDispel)
-		ToggleElement()
-	end
-end
-
-local frame = CreateFrame('Frame')
-frame:SetScript('OnEvent', UpdateDispels)
-frame:RegisterEvent('SPELLS_CHANGED')
